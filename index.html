@@ -1,0 +1,26 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>認知の歪み セルフチェック</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6f4;color:#213e39;font:16px/1.8 "Yu Gothic",Meiryo,sans-serif}main{max-width:820px;margin:auto;padding:32px 20px 64px}header{position:relative;overflow:hidden;isolation:isolate;background:#214c47;color:white;border-radius:24px;padding:clamp(25px,6vw,54px)}header:after{content:"";position:absolute;z-index:-1;width:340px;height:340px;right:-180px;top:-135px;border-radius:50%;background:repeating-radial-gradient(circle,transparent 0 13px,#82b9a657 14px 15px)}h1{font:500 clamp(29px,6vw,50px)/1.4 "Yu Mincho",serif;letter-spacing:.04em;margin:0}header p{margin:18px 0 0;max-width:33em}fieldset,section{background:white;border:1px solid #d4dfd9;border-radius:17px;padding:clamp(17px,4vw,32px);margin:14px 0;min-width:0}legend{float:left;width:100%;margin-bottom:16px;font-weight:600}legend b{display:block;color:#497369;font:italic 22px Georgia;margin-bottom:8px}.choices{clear:both;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}label{position:relative;cursor:pointer}label span{height:100%;display:grid;align-content:center;text-align:center;border:1px solid #c9d8d1;border-radius:9px;padding:8px 3px;font-size:14px;line-height:1.45}label strong{font:600 18px Georgia;display:block;margin-bottom:3px}input{position:absolute;opacity:0}input:checked+span,button{background:#25594e;color:white}input:focus-visible+span{outline:3px solid #bc792d;outline-offset:2px}.meter{display:flex;align-items:center;gap:15px;margin:20px 0;font-size:14px}progress{flex:1;min-width:0;height:7px;accent-color:#386d60}h2{font:600 25px "Yu Mincho",serif;margin:0}pre{white-space:pre-wrap;font:inherit;background:#edf4ef;padding:15px;border-radius:10px}button{border:none;border-radius:30px;padding:12px 24px;font:inherit;cursor:pointer}button:disabled{background:#e2e9e5;color:#52645a;cursor:default}#notice{display:block}small{color:#466157}</style>
+<main><header><h1>認知の歪み<br>セルフチェック</h1><p>ふだんの自分を思い浮かべて、各項目にいちばん近い答えを選んでください。</p></header><div class="meter"><span id="count">0 / 10 項目</span><progress id="bar" max="10" value="0"></progress></div><form id="questions"></form><section><h2>あなたの回答</h2><p id="summary" aria-live="polite"></p><pre id="result" hidden></pre><button id="copy" disabled>提出用にコピー</button><span id="notice" role="status"></span></section></main>
+<script>
+const items=[
+'０か１００かで判断しがち、変にこだわる、少しでもできてないと失敗した気がする',
+'「いつも私は～だ」「絶対に～だ」「みんな～だ」などの枕ことばを使いがち。',
+'良い面よりも悪い面が見えがち：掃除したのにゴミが落ちている、褒められても全然できてないと感じる',
+'良いことも悪いことにすり替えてしまう、褒められた→嫌味を言われた、「今日はきれいだね」→いつもブス？',
+'薄い根拠で結論付けるくせがある（～が言っていた、など）、今がこうだから未来もきっとこうだ、と悲観、口癖「絶対うまくいかないわ」',
+'「私何もできません」「私の方がひどいよ」など不幸自慢してしまう、一人反省会しがち',
+'事実ではなく解釈、フラッシュバックにこだわる、こんな気持ちにさせられている、ってことは相手は悪い人だ',
+'～しなければ、～あるべき、とハードルを自分にも相手にも高くする、「常識的に考えれば」「やって当たり前じゃん」などが口ぐせ',
+'「この子は恥ずかしがり屋なんです」と人格を紹介したり「ゴミを拾わないなんてきっとこの人は悪人だ」など決めつけてしまうことがある',
+'周りで起きたマイナスなことに対して、私のせいだと思ったり、仕事のミス・子供の発達―私のせいだ、私が出かけようって言ったせいだと思ってしまう'
+];
+const numbers='①②③④⑤⑥⑦⑧⑨⑩', choices=['当てはまらない','どちらともいえない','当てはまる'];
+const el=id=>document.getElementById(id),form=el('questions');
+items.forEach((q,i)=>{const group=document.createElement('fieldset');group.innerHTML='<legend><b>'+numbers[i]+'</b>'+q+'</legend><div class="choices">'+choices.map((s,v)=>'<label><input type="radio" name="q'+i+'" value="'+v+'"><span><strong>'+v+'点</strong>'+s+'</span></label>').join('')+'</div>';form.append(group)});
+function update(){const data=new FormData(form),n=Array.from(data).length;el('count').textContent=n+' / 10 項目';el('bar').value=n;el('copy').disabled=n!==10;el('result').hidden=n!==10;el('notice').textContent='';
+el('summary').textContent=n===10?'合計 '+Array.from(data.values()).reduce((a,v)=>a+Number(v),0)+' / 20点。下の回答をコピーして提出してください。':'あと'+(10-n)+'項目を選ぶと、ここに結果が表示されます。';
+if(n===10)el('result').textContent='【認知の歪み 回答部分】\n'+items.map((_,i)=>numbers[i]+' '+data.get('q'+i)+'点').join('　')}
+form.addEventListener('change',update);window.addEventListener('pageshow',update);update();
+el('copy').onclick=async()=>{try{await navigator.clipboard.writeText(el('result').textContent);el('notice').textContent='コピーしました。提出先に貼り付けてください。'}catch{const range=document.createRange();range.selectNodeContents(el('result'));getSelection().removeAllRanges();getSelection().addRange(range);el('notice').textContent='回答を選択しました。端末のコピー操作を使ってください。'}};
+</script></html>
